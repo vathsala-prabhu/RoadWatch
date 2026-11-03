@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Log in | RoadWatch{% endblock %}
+{% block content %}
+<section class="auth-section auth-login container">
+  <div class="auth-story">
+    <div class="eyebrow eyebrow-light">WELCOME BACK</div>
+    <h1>Good to have<br>you <span>back.</span></h1>
+    <p>Your reports help create safer roads. Sign in to submit a new issue or follow an existing one.</p>
+    <div class="story-points"><span>✓ &nbsp;Your reports in one place</span><span>✓ &nbsp;Clear status updates</span><span>✓ &nbsp;Community impact</span></div>
+    <div class="story-foot">ROADWATCH <span>●</span> COMMUNITY FIRST</div>
+  </div>
+  <div class="auth-card">
+    <div class="eyebrow">YOUR ACCOUNT</div><h2>Welcome back</h2><p class="muted">Enter your details to continue.</p>
+    <form method="POST" class="form-stack">
+      <label for="email">Email address</label><input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+      <label for="password">Password</label><input id="password" name="password" type="password" placeholder="Your password" autocomplete="current-password" required>
+      <button class="button button-full" type="submit">Log in <span>→</span></button>
+    </form>
+    <p class="auth-switch">New to RoadWatch? <a href="{{ url_for('register') }}">Create an account</a></p>
+    <div class="secure-note">🔒 Never share your password with anyone.</div>
+  </div>
+</section>
+{% endblock %}

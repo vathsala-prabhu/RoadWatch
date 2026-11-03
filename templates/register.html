@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Create account | RoadWatch{% endblock %}
+{% block content %}
+<section class="auth-section container">
+  <div class="auth-story">
+    <div class="eyebrow eyebrow-light">YOUR COMMUNITY. YOUR VOICE.</div>
+    <h1>Help make<br>every journey<br><span>safer.</span></h1>
+    <p>Join your community in reporting road damage and following repairs. Small reports can lead to safer streets.</p>
+    <div class="story-points"><span>✓ &nbsp;Quick issue reporting</span><span>✓ &nbsp;Updates on your complaints</span><span>✓ &nbsp;A safer neighbourhood</span></div>
+    <div class="story-foot">ROADWATCH <span>●</span> COMMUNITY FIRST</div>
+  </div>
+  <div class="auth-card">
+    <div class="eyebrow">GET STARTED</div><h2>Create your account</h2><p class="muted">It takes less than a minute to join.</p>
+    <form method="POST" action="{{ url_for('register') }}" class="form-stack">
+      <label for="name">Full name</label><input id="name" name="name" type="text" placeholder="Enter your full name" autocomplete="name" required>
+      <label for="email">Email address</label><input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+      <label for="password">Password</label><input id="password" name="password" type="password" placeholder="At least 8 characters" minlength="8" autocomplete="new-password" required>
+      <button class="button button-full" type="submit">Create account <span>→</span></button>
+    </form>
+    <p class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+    <div class="secure-note">🔒 Your account details are protected with password hashing.</div>
+  </div>
+</section>
+{% endblock %}

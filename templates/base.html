@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101d2e">
+  <title>{% block title %}RoadWatch{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+</head>
+<body>
+<header class="site-header">
+  <nav class="nav container">
+    <a class="brand" href="{{ url_for('home') }}"><span class="brand-mark">R</span><span>Road<span class="accent">Watch</span></span></a>
+    <button class="menu-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+    <div class="nav-links">
+      {% if current_user %}
+        {% if current_user.role == 'admin' %}
+          <a href="{{ url_for('admin_dashboard') }}">Admin dashboard</a>
+        {% else %}
+          <a href="{{ url_for('dashboard') }}">My reports</a>
+          <a href="{{ url_for('report') }}">Report damage</a>
+        {% endif %}
+        <span class="nav-user">{{ current_user.name }}</span>
+        <a class="button button-small button-outline" href="{{ url_for('logout') }}">Log out</a>
+      {% else %}
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('login') }}">Log in</a>
+        <a class="button button-small" href="{{ url_for('register') }}">Get started <span>↗</span></a>
+      {% endif %}
+    </div>
+  </nav>
+</header>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-wrap container">
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<main>{% block content %}{% endblock %}</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <a class="brand brand-footer" href="{{ url_for('home') }}"><span class="brand-mark">R</span><span>Road<span class="accent">Watch</span></span></a>
+    <p>Report. Track. Improve. &nbsp;·&nbsp; Building safer roads, together.</p>
+    <span>© 2026 RoadWatch</span>
+  </div>
+</footer>
+</body>
+</html>

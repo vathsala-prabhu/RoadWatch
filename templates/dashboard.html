@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}My reports | RoadWatch{% endblock %}
+{% block content %}
+<section class="page-shell container">
+  <div class="dashboard-heading"><div><div class="eyebrow">CITIZEN DASHBOARD</div><h1>My road reports</h1><p class="muted">Keep track of the issues you've brought to attention.</p></div><a class="button" href="{{ url_for('report') }}">＋ New report</a></div>
+  <div class="stat-grid">
+    <div class="stat-card"><span class="stat-label">Total reports</span><b>{{ complaints|length }}</b><span class="stat-foot">Submitted by you</span></div>
+    <div class="stat-card"><span class="stat-label">Pending</span><b>{{ complaints|selectattr('status','equalto','Pending')|list|length }}</b><span class="stat-foot">Awaiting action</span></div>
+    <div class="stat-card"><span class="stat-label">In progress</span><b>{{ complaints|selectattr('status','equalto','In Progress')|list|length }}</b><span class="stat-foot">Being addressed</span></div>
+    <div class="stat-card"><span class="stat-label">Resolved</span><b>{{ complaints|selectattr('status','equalto','Resolved')|list|length }}</b><span class="stat-foot">Marked complete</span></div>
+  </div>
+  <div class="list-heading"><div><h2>Your submissions</h2><p class="muted">Updates from the road management team.</p></div></div>
+  {% if complaints %}
+    <div class="complaint-list">
+    {% for c in complaints %}
+      <article class="complaint-card">
+        {% if c.image_url %}<img class="complaint-thumb" src="{{ c.image_url }}" alt="Road damage photo">{% else %}<div class="complaint-thumb thumb-placeholder">⌁</div>{% endif %}
+        <div class="complaint-main"><div class="complaint-top"><span class="complaint-id">REPORT #{{ c.id }}</span><span class="status status-{{ c.status|lower|replace(' ','-') }}">{{ c.status }}</span></div><h3>{{ c.damage_type }}</h3><p>⌖ {{ c.location }}</p><p class="description-text">{{ c.description }}</p><small>Submitted {{ c.created_at }}</small></div>
+      </article>
+    {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state"><div class="empty-icon">⌖</div><h3>No reports yet</h3><p>When you report a road issue, it will appear here.</p><a class="button" href="{{ url_for('report') }}">Submit your first report</a></div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Report road damage | RoadWatch{% endblock %}
+{% block content %}
+<section class="page-shell container">
+  <div class="page-intro"><div class="eyebrow">HELP IMPROVE YOUR STREETS</div><h1>Report road damage</h1><p>Give authorities the details they need to understand and address the issue.</p></div>
+  <div class="content-card report-card">
+    <form method="POST" enctype="multipart/form-data" class="form-stack">
+      <div class="form-section-title"><span>01</span><div><h3>Issue details</h3><p>Tell us what you noticed.</p></div></div>
+      <label for="damage_type">Type of damage</label>
+      <select id="damage_type" name="damage_type" required><option value="">Select damage type</option><option>Pothole</option><option>Road crack</option><option>Broken road surface</option><option>Damaged footpath</option><option>Open manhole</option><option>Other</option></select>
+      <label for="location">Location</label><input id="location" name="location" type="text" placeholder="Street, area, landmark or city" required>
+      <label for="description">Description</label><textarea id="description" name="description" rows="5" placeholder="Describe the damage and nearby landmarks..." required></textarea>
+      <div class="form-section-title section-spaced"><span>02</span><div><h3>Add a photo</h3><p>A clear photo helps explain the issue. JPG, PNG or WEBP, max 5 MB.</p></div></div>
+      <label class="upload-box" for="image"><span class="upload-symbol">↑</span><b id="file-label">Choose an image to upload</b><small>Click to browse your device · Optional</small><input id="image" name="image" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></label>
+      <button class="button button-full" type="submit">Submit road report <span>→</span></button>
+    </form>
+  </div>
+</section>
+{% endblock %}
