@@ -19,7 +19,16 @@ app.secret_key = os.environ.get("SECRET_KEY", "roadwatch-secret-key-production-r
 AWS_REGION = os.environ.get("AWS_REGION", "ap-southeast-2")
 S3_BUCKET = os.environ.get("S3_BUCKET")
 s3_client = boto3.client("s3", region_name=AWS_REGION) if S3_BUCKET else None
+# AWS SNS Configuration
+SNS_TOPIC_ARN = os.environ.get(
+    "SNS_TOPIC_ARN",
+    "arn:aws:sns:ap-southeast-2:304019241867:RoadWatch-Alerts"
+)
 
+sns_client = boto3.client(
+    "sns",
+    region_name=AWS_REGION
+)
 # File upload configuration
 UPLOAD_FOLDER = os.path.join(app.root_path, "uploads")
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
@@ -280,9 +289,28 @@ def report():
             VALUES (?, ?, ?, ?, ?, 'Pending', ?, ?, ?, 0)
         """, (user_id, damage_type, location, description, image_key, priority, lat, lng))
         conn.commit()
-        complaint_id = cursor.lastrowid
-        conn.close()
+         # Send SNS email notification for new complaint
+        try:
+            message = (
+                f"A new road damage complaint has been submitted.\n\n"
+                f"Complaint ID: RW-{complaint_id}\n"
+                f"Category: {damage_type}\n"
+                f"Location: {location}\n"
+                f"Priority: {priority}\n"
+                f"Description: {description or 'Not provided'}\n"
+                f"Status: Pending\n"
+            )
 
+            sns_client.publish(
+                TopicArn=SNS_TOPIC_ARN,
+                Subject=f"New RoadWatch Complaint - RW-{complaint_id}",
+                Message=message
+            )
+
+            app.logger.info("SNS notification sent for RW-%s", complaint_id)
+
+        except Exception:
+            app.logger.exception("SNS notification failed for RW-%s", complaint_id)
         flash(f"Road damage report #RW-{complaint_id} submitted successfully! Municipal dispatch has been notified.", "success")
         return redirect(url_for("map_page", lat=lat, lng=lng, zoom=16) if lat and lng else url_for("map_page"))
 
