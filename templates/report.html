@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Report Road Damage | RoadWatch{% endblock %}
+
+{% block head %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+{% endblock %}
+
+{% block content %}
+<section class="report-wrapper">
+    <div class="report-header">
+        <span class="eyebrow">CITIZEN REPORTING PORTAL</span>
+        <h1>Report Road Damage</h1>
+        <p>Help city maintenance teams locate, assess, and prioritize critical road repairs.</p>
+    </div>
+
+    <form method="POST" action="/report" enctype="multipart/form-data" class="report-form" id="damageReportForm">
+        <div class="report-grid">
+            <!-- Left Column: Details & Photo -->
+            <div class="report-details-card">
+                <div class="card-title-bar">
+                    <span class="step-num">1</span>
+                    <h3>Damage Details</h3>
+                </div>
+
+                <div class="form-group">
+                    <label for="damage_type">Damage Category <span class="required">*</span></label>
+                    <select name="damage_type" id="damage_type" required>
+                        <option value="" disabled selected>Select category...</option>
+                        <option value="Pothole">Pothole</option>
+                        <option value="Surface Cracking">Surface Cracking (Alligator / Longitudinal)</option>
+                        <option value="Rutting / Depression">Rutting / Depression</option>
+                        <option value="Erosion / Edge Break">Erosion / Road Shoulder Break</option>
+                        <option value="Manhole / Drainage Issue">Manhole / Drainage Issue</option>
+                        <option value="Street Light / Signage Obstruction">Street Light / Signage Obstruction</option>
+                        <option value="Other">Other Hazard</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="priority">Severity / Priority</label>
+                    <select name="priority" id="priority">
+                        <option value="Medium" selected>Medium (Standard wear/moderate hazard)</option>
+                        <option value="High">High (Severe hazard / deep crater / vehicle risk)</option>
+                        <option value="Low">Low (Minor cosmetic / early wear)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Street Address / Landmark <span class="required">*</span></label>
+                    <input type="text" name="location" id="location" placeholder="e.g. Near 450 Market St, adjacent to crosswalk" required>
+                    <small class="field-hint">Provide recognizable street names or landmarks to help work crews find it quickly.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Detailed Description</label>
+                    <textarea name="description" id="description" rows="4" placeholder="Describe the size, depth, lane obstruction, or any safety hazards..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="image">Upload Damage Photograph</label>
+                    <div class="file-upload-box" id="dropZone">
+                        <input type="file" name="image" id="imageInput" accept="image/png, image/jpeg, image/jpg, image/webp">
+                        <div class="upload-prompt" id="uploadPrompt">
+                            <span class="upload-icon">📷</span>
+                            <span class="upload-text"><strong>Choose an image</strong> or drag and drop</span>
+                            <span class="upload-sub">PNG, JPG, WEBP up to 10MB</span>
+                        </div>
+                        <div class="image-preview-container" id="imagePreviewContainer" style="display: none;">
+                            <img id="imagePreview" src="#" alt="Damage preview" />
+                            <button type="button" class="remove-image-btn" id="removeImageBtn">✕ Remove</button>
+                        </div>
+                    </div>
+                    <div class="info-callout">
+                        <span class="callout-icon">💡</span>
+                        <div class="callout-text">
+                            <strong>Previously captured photo?</strong> If you took this photo earlier and are submitting now from home or office, you can manually pinpoint where the photo was taken on the map to the right.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: GPS & Interactive Map -->
+            <div class="report-map-card">
+                <div class="card-title-bar">
+                    <span class="step-num">2</span>
+                    <h3>Pinpoint Precise Location</h3>
+                </div>
+
+                <p class="section-instruction">
+                    Accurate GPS coordinates allow municipal dispatchers to locate the damage directly on GIS navigation units.
+                </p>
+
+                <!-- Location Action Bar -->
+                <div class="location-actions">
+                    <button type="button" class="loc-btn primary-loc" id="btnGeolocate">
+                        <span class="btn-icon">🎯</span>
+                        <span>Use My Current Location</span>
+                    </button>
+                    <button type="button" class="loc-btn secondary-loc" id="btnManualSelect">
+                        <span class="btn-icon">📍</span>
+                        <span>Select on Map</span>
+                    </button>
+                </div>
+
+                <!-- Geolocation Feedback Messages -->
+                <div id="gpsFeedback" class="gps-feedback-msg" style="display: none;"></div>
+
+                <!-- Map Container -->
+                <div class="map-picker-container">
+                    <div id="reportMap" class="leaflet-map-picker"></div>
+                    <div class="map-helper-badge">
+                        <span>💡 Tip: Click anywhere or drag the pin to adjust position</span>
+                    </div>
+                </div>
+
+                <!-- Coordinate Fields -->
+                <div class="coords-row">
+                    <div class="coord-field">
+                        <label for="latitude">Latitude</label>
+                        <input type="number" step="any" name="latitude" id="latitude" placeholder="e.g. 37.785834" readonly>
+                    </div>
+                    <div class="coord-field">
+                        <label for="longitude">Longitude</label>
+                        <input type="number" step="any" name="longitude" id="longitude" placeholder="e.g. -122.406417" readonly>
+                    </div>
+                    <button type="button" class="clear-coords-btn" id="btnClearCoords" title="Reset coordinates">Clear</button>
+                </div>
+
+                <div class="form-submit-row">
+                    <button type="submit" class="primary-btn submit-btn" id="btnSubmitReport">
+                        Submit Road Damage Report →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<!-- Report Map JS -->
+<script src="{{ url_for('static', filename='js/report_map.js') }}"></script>
+{% endblock %}
+

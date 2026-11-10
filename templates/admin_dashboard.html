@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Complaint Management | RoadWatch Admin{% endblock %}
+
+{% block content %}
+<section class="admin-wrapper">
+    <div class="admin-header-row">
+        <div>
+            <span class="eyebrow">ADMINISTRATION CONTROL CENTER</span>
+            <h1>Road Damage Management</h1>
+            <p>Review, verify, and update the status of citizen-submitted road complaints across Mysuru.</p>
+        </div>
+        <div class="header-action-buttons">
+            <a href="/admin/analytics" class="primary-btn">
+                <span>📊 Analytics & Heatmap</span>
+            </a>
+            <a href="/map" class="secondary-btn" target="_blank">
+                <span>🗺️ Live Map</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Metrics Row -->
+    <div class="admin-metrics-bar">
+        <div class="metric-pill">
+            <span class="pill-dot bg-navy"></span>
+            <span>Total: <b>{{ stats.total }}</b></span>
+        </div>
+        <div class="metric-pill">
+            <span class="pill-dot bg-amber"></span>
+            <span>Pending: <b>{{ stats.pending }}</b></span>
+        </div>
+        <div class="metric-pill">
+            <span class="pill-dot bg-blue"></span>
+            <span>In Progress: <b>{{ stats.in_progress }}</b></span>
+        </div>
+        <div class="metric-pill">
+            <span class="pill-dot bg-green"></span>
+            <span>Resolved: <b>{{ stats.resolved }}</b></span>
+        </div>
+        <div class="metric-pill">
+            <span class="pill-dot bg-red"></span>
+            <span>High Priority: <b>{{ stats.high_priority }}</b></span>
+        </div>
+    </div>
+
+    <!-- Filter and Search Bar for Admin -->
+    <div class="admin-filter-bar">
+        <form method="GET" action="/admin" class="admin-search-form">
+            <div class="admin-search-input-wrap">
+                <span class="search-icon">🔍</span>
+                <input type="text" name="search" value="{{ search_query or '' }}" placeholder="Search by Street, Landmark, ID, or Defect..." class="admin-search-input">
+            </div>
+
+            <div class="admin-filter-selects">
+                <select name="status" class="admin-filter-select">
+                    <option value="ALL" {% if filter_status == 'ALL' %}selected{% endif %}>All Statuses</option>
+                    <option value="Pending" {% if filter_status == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="In Progress" {% if filter_status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                    <option value="Resolved" {% if filter_status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                </select>
+
+                <select name="priority" class="admin-filter-select">
+                    <option value="ALL" {% if filter_priority == 'ALL' %}selected{% endif %}>All Priorities</option>
+                    <option value="High" {% if filter_priority == 'High' %}selected{% endif %}>High Priority</option>
+                    <option value="Medium" {% if filter_priority == 'Medium' %}selected{% endif %}>Medium Priority</option>
+                    <option value="Low" {% if filter_priority == 'Low' %}selected{% endif %}>Low Priority</option>
+                </select>
+
+                <select name="origin" class="admin-filter-select">
+                    <option value="ALL" {% if filter_origin == 'ALL' %}selected{% endif %}>All Records</option>
+                    <option value="citizen" {% if filter_origin == 'citizen' %}selected{% endif %}>Citizen Reports Only</option>
+                    <option value="demo" {% if filter_origin == 'demo' %}selected{% endif %}>Demo Data Only</option>
+                </select>
+
+                <button type="submit" class="primary-btn search-submit-btn">Filter</button>
+                {% if search_query or (filter_status and filter_status != 'ALL') or (filter_priority and filter_priority != 'ALL') or (filter_origin and filter_origin != 'ALL') %}
+                    <a href="/admin" class="reset-filter-btn">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Complaints Management Table -->
+    <div class="admin-table-card">
+        <div class="table-card-header">
+            <h3>Registered Road Complaints ({{ complaints|length }})</h3>
+        </div>
+
+        <div class="table-responsive">
+            <table class="rw-table">
+                <thead>
+                    <tr>
+                        <th>ID & Origin</th>
+                        <th>Type & Photo</th>
+                        <th>Location & Coordinates</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Reported Date</th>
+                        <th>Update Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in complaints %}
+                        <tr>
+                            <td>
+                                <div class="id-origin-cell">
+                                    <span class="complaint-id-tag">#RW-{{ c.id }}</span>
+                                    {% if c.is_demo %}
+                                        <span class="origin-badge origin-demo" title="Demonstration Complaint">Demo Data</span>
+                                    {% else %}
+                                        <span class="origin-badge origin-citizen" title="Actual Citizen Complaint">Citizen Report</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="damage-type-cell">
+                                    <strong>{{ c.damage_type }}</strong>
+                                    {% if c.description %}
+                                        <p class="desc-preview">{{ c.description[:85] }}{% if c.description|length > 85 %}...{% endif %}</p>
+                                    {% endif %}
+                                    {% if c.image_key %}
+                                        <div class="admin-table-photo">
+                                            <a href="/uploads/{{ c.image_key }}" target="_blank" class="table-photo-link">
+                                                📷 View Photo
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="location-cell">
+                                    <span>📍 {{ c.location }}</span>
+                                    {% if c.latitude and c.longitude %}
+                                        <a href="/map?lat={{ c.latitude }}&lng={{ c.longitude }}&zoom=16" target="_blank" class="coords-link" title="View on map">
+                                            🗺️ {{ "%.4f"|format(c.latitude) }}, {{ "%.4f"|format(c.longitude) }}
+                                        </a>
+                                    {% else %}
+                                        <span class="no-coords-badge">No GPS</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="priority-badge priority-{{ c.priority | lower }}">
+                                    {{ c.priority or 'Medium' }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ c.status | lower | replace(' ', '-') }}">
+                                    {{ c.status }}
+                                </span>
+                            </td>
+                            <td class="date-cell">
+                                {{ c.created_at[:16] if c.created_at else 'N/A' }}
+                            </td>
+                            <td class="action-cell">
+                                <form method="POST" action="/admin/complaint/{{ c.id }}/status" class="status-update-form">
+                                    <select name="status" class="status-select" onchange="this.form.submit()">
+                                        <option value="Pending" {% if c.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                        <option value="In Progress" {% if c.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                        <option value="Resolved" {% if c.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                                    </select>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="empty-table-cell">
+                                No complaints found matching your criteria.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

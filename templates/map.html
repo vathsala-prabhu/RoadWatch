@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Interactive Damage Map | RoadWatch{% endblock %}
+
+{% block head %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+{% endblock %}
+
+{% block content %}
+<section class="map-page-wrapper">
+    <!-- Map Control Header & Filter Bar -->
+    <div class="map-controls-card">
+        <div class="map-controls-top">
+            <div>
+                <span class="eyebrow">GEOSPATIAL INTELLIGENCE</span>
+                <h2>Interactive Road Damage Map</h2>
+                <p>Filter, explore, and analyze community reported hazards across the road network.</p>
+            </div>
+
+            <!-- View Switcher Toggle -->
+            <div class="view-toggle-group">
+                <button type="button" class="view-toggle-btn active" id="btnViewMarkers" data-mode="markers">
+                    <span class="toggle-icon">📍</span>
+                    <span>Markers View</span>
+                </button>
+                <button type="button" class="view-toggle-btn" id="btnViewHeatmap" data-mode="heatmap">
+                    <span class="toggle-icon">🔥</span>
+                    <span>Heatmap View</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="map-filters-row">
+            <div class="filter-group">
+                <label for="filterStatus">Status</label>
+                <select id="filterStatus" class="filter-select">
+                    <option value="ALL">All Statuses</option>
+                    <option value="Pending">Pending Only</option>
+                    <option value="In Progress">In Progress Only</option>
+                    <option value="Resolved">Resolved Only</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filterCategory">Damage Category</label>
+                <select id="filterCategory" class="filter-select">
+                    <option value="ALL">All Categories</option>
+                    <option value="Pothole">Potholes</option>
+                    <option value="Surface Cracking">Surface Cracking</option>
+                    <option value="Rutting / Depression">Rutting / Depression</option>
+                    <option value="Erosion / Edge Break">Erosion / Edge Break</option>
+                    <option value="Manhole / Drainage Issue">Manhole / Drainage Issue</option>
+                    <option value="Street Light / Signage Obstruction">Signage / Light Obstruction</option>
+                    <option value="Other">Other Hazards</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filterPriority">Priority</label>
+                <select id="filterPriority" class="filter-select">
+                    <option value="ALL">All Priorities</option>
+                    <option value="High">High Severity</option>
+                    <option value="Medium">Medium Severity</option>
+                    <option value="Low">Low Severity</option>
+                </select>
+            </div>
+
+            <div class="filter-actions">
+                <button type="button" class="reset-filter-btn" id="btnResetFilters">Reset Filters</button>
+                {% if session.get('user_role') != 'admin' %}
+                    <a href="/report" class="primary-btn map-report-btn">+ Report New Damage</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="map-status-bar">
+            <span class="results-count" id="mapResultsCount">Loading complaint locations...</span>
+            <div class="status-summary-tags">
+                <span class="summary-tag pending"><span class="tag-dot"></span> Pending: <b id="countPending">0</b></span>
+                <span class="summary-tag in-progress"><span class="tag-dot"></span> In Progress: <b id="countInProgress">0</b></span>
+                <span class="summary-tag resolved"><span class="tag-dot"></span> Resolved: <b id="countResolved">0</b></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Stage Container -->
+    <div class="map-container-wrapper">
+        <div id="exploreMap" class="full-explore-map"></div>
+
+        <!-- Legend Overlay -->
+        <div class="map-legend-card" id="mapLegend">
+            <div class="legend-title">Map Legend</div>
+            <div class="legend-items" id="legendMarkers">
+                <div class="legend-item"><span class="legend-color-dot dot-pending"></span> Pending Verification</div>
+                <div class="legend-item"><span class="legend-color-dot dot-inprogress"></span> Repair In Progress</div>
+                <div class="legend-item"><span class="legend-color-dot dot-resolved"></span> Resolved / Repaired</div>
+            </div>
+            <div class="legend-items" id="legendHeatmap" style="display: none;">
+                <div class="legend-item"><strong>Density Gradient:</strong></div>
+                <div class="heatmap-gradient-bar"></div>
+                <div class="gradient-labels">
+                    <span>Low</span>
+                    <span>Moderate</span>
+                    <span>High Density</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner Overlay -->
+        <div class="map-loading-overlay" id="mapLoadingOverlay">
+            <div class="spinner"></div>
+            <span>Loading geospatial data...</span>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<!-- Leaflet Heat Plugin -->
+<script src="{{ url_for('static', filename='js/leaflet-heat.js') }}"></script>
+<!-- Map Explorer Script -->
+<script src="{{ url_for('static', filename='js/explore_map.js') }}"></script>
+{% endblock %}
+

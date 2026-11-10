@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics & Heatmap Dashboard | RoadWatch{% endblock %}
+
+{% block head %}
+<!-- Leaflet CSS for Analytics Heatmap -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+{% endblock %}
+
+{% block content %}
+<section class="analytics-page-wrapper">
+    <!-- Analytics Header -->
+    <div class="analytics-header-card">
+        <div class="header-titles">
+            <span class="eyebrow">ADMINISTRATIVE INTELLIGENCE</span>
+            <h1>Road Infrastructure Analytics & Heatmap</h1>
+            <p>Data-driven insights on complaint volume, category distribution, repair velocity, and geographic density.</p>
+        </div>
+        <div class="admin-quick-actions">
+            <a href="/admin" class="secondary-btn">← Complaint Management</a>
+            <a href="/map" class="secondary-btn" target="_blank">Full-Screen Map ↗</a>
+        </div>
+    </div>
+
+    <!-- Filter Control Bar -->
+    <div class="analytics-filter-card">
+        <form id="analyticsFilterForm" class="filter-controls-form" onsubmit="event.preventDefault(); applyFilters();">
+            <div class="filter-field">
+                <label for="filterStartDate">From Date</label>
+                <input type="date" id="filterStartDate" name="start_date">
+            </div>
+
+            <div class="filter-field">
+                <label for="filterEndDate">To Date</label>
+                <input type="date" id="filterEndDate" name="end_date">
+            </div>
+
+            <div class="filter-field">
+                <label for="filterStatus">Status</label>
+                <select id="filterStatus" name="status">
+                    <option value="ALL">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="filterCategory">Damage Category</label>
+                <select id="filterCategory" name="category">
+                    <option value="ALL">All Categories</option>
+                    <option value="Pothole">Pothole</option>
+                    <option value="Surface Cracking">Surface Cracking</option>
+                    <option value="Rutting / Depression">Rutting / Depression</option>
+                    <option value="Erosion / Edge Break">Erosion / Edge Break</option>
+                    <option value="Manhole / Drainage Issue">Manhole / Drainage Issue</option>
+                    <option value="Street Light / Signage Obstruction">Signage / Light</option>
+                    <option value="Other">Other Hazards</option>
+                </select>
+            </div>
+
+            <div class="filter-buttons">
+                <button type="submit" class="primary-btn filter-submit-btn">
+                    <span>Apply Filters</span>
+                </button>
+                <button type="button" class="reset-filter-btn" id="btnResetAnalyticsFilters">
+                    Reset
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Summary Metrics Cards -->
+    <div class="summary-cards-grid">
+        <div class="summary-metric-card">
+            <div class="card-icon-wrap bg-navy">📋</div>
+            <div class="metric-data">
+                <span class="metric-label">Total Filtered Reports</span>
+                <span class="metric-value" id="valTotalComplaints">0</span>
+                <span class="metric-sub" id="subTotalComplaints">Complaints in database</span>
+            </div>
+        </div>
+
+        <div class="summary-metric-card">
+            <div class="card-icon-wrap bg-amber">⏳</div>
+            <div class="metric-data">
+                <span class="metric-label">Pending Verification</span>
+                <span class="metric-value text-amber" id="valPendingComplaints">0</span>
+                <span class="metric-sub" id="subPendingPct">0% of filtered</span>
+            </div>
+        </div>
+
+        <div class="summary-metric-card">
+            <div class="card-icon-wrap bg-blue">⚙️</div>
+            <div class="metric-data">
+                <span class="metric-label">Repairs In Progress</span>
+                <span class="metric-value text-blue" id="valInProgressComplaints">0</span>
+                <span class="metric-sub" id="subInProgressPct">0% of filtered</span>
+            </div>
+        </div>
+
+        <div class="summary-metric-card">
+            <div class="card-icon-wrap bg-green">✅</div>
+            <div class="metric-data">
+                <span class="metric-label">Resolved / Repaired</span>
+                <span class="metric-value text-green" id="valResolvedComplaints">0</span>
+                <span class="metric-sub" id="subResolvedPct">0% resolution rate</span>
+            </div>
+        </div>
+
+        <div class="summary-metric-card">
+            <div class="card-icon-wrap bg-red">🚨</div>
+            <div class="metric-data">
+                <span class="metric-label">High Priority Hazards</span>
+                <span class="metric-value text-red" id="valHighPriorityComplaints">0</span>
+                <span class="metric-sub">Immediate attention</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Visualisation Grid (2x2) -->
+    <div class="charts-grid-container">
+        <!-- Chart 1: Status Distribution -->
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <h3>Complaints by Status</h3>
+                    <p>Current distribution across workflow stages</p>
+                </div>
+                <span class="chart-badge">Doughnut</span>
+            </div>
+            <div class="chart-canvas-wrap">
+                <canvas id="chartStatus"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 2: Damage by Category -->
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <h3>Complaints by Damage Category</h3>
+                    <p>Incidents categorized by physical defect type</p>
+                </div>
+                <span class="chart-badge">Bar Chart</span>
+            </div>
+            <div class="chart-canvas-wrap">
+                <canvas id="chartCategory"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 3: Monthly Complaint Trends -->
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <h3>Monthly Incident Trends</h3>
+                    <p>Complaint reporting volume over time</p>
+                </div>
+                <span class="chart-badge">Line Trend</span>
+            </div>
+            <div class="chart-canvas-wrap">
+                <canvas id="chartMonthlyTrends"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 4: Resolved vs Pending -->
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <h3>Resolved vs Pending Comparison</h3>
+                    <p>Backlog resolution velocity comparison</p>
+                </div>
+                <span class="chart-badge">Comparison</span>
+            </div>
+            <div class="chart-canvas-wrap">
+                <canvas id="chartResolvedPending"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section: Geographic Damage Heatmap -->
+    <div class="analytics-heatmap-section">
+        <div class="heatmap-section-header">
+            <div>
+                <span class="eyebrow">GEOGRAPHIC CLUSTERING</span>
+                <h2>Hazard Concentration Heatmap</h2>
+                <p>Identifies high-density road deterioration corridors to optimize maintenance team deployment.</p>
+            </div>
+            <div class="view-toggle-group">
+                <button type="button" class="view-toggle-btn active" id="btnAnalyticsHeatmap">
+                    🔥 Heatmap Layer
+                </button>
+                <button type="button" class="view-toggle-btn" id="btnAnalyticsMarkers">
+                    📍 Pin Markers
+                </button>
+            </div>
+        </div>
+
+        <div class="analytics-map-frame">
+            <div id="analyticsHeatmapMap" class="analytics-leaflet-map"></div>
+
+            <div class="analytics-map-legend">
+                <div class="legend-scale-title">Concentration Density</div>
+                <div class="heatmap-gradient-bar"></div>
+                <div class="gradient-labels">
+                    <span>Sparse (1 report)</span>
+                    <span>Moderate</span>
+                    <span>Critical Hotspot</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js 4.4 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<!-- Leaflet Heat Plugin -->
+<script src="{{ url_for('static', filename='js/leaflet-heat.js') }}"></script>
+<!-- Analytics Dashboard Script -->
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}
+

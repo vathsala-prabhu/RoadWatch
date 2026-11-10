@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In | RoadWatch{% endblock %}
+
+{% block content %}
+<section class="auth-wrapper">
+    <div class="auth-info">
+        <span class="eyebrow">WELCOME BACK</span>
+
+        <h1>Together for<br>
+            <span>safer streets.</span>
+        </h1>
+
+        <p>
+            Sign in to track your road damage complaints, receive updates on city repair works,
+            or access the administrative analytics dashboard.
+        </p>
+
+        <div class="info-points">
+            <div>✓ Real-time status updates on submitted repairs</div>
+            <div>✓ Instant GPS & interactive map reporting</div>
+            <div>✓ Municipal analytics and density heatmaps</div>
+        </div>
+
+        <div class="auth-decoration">
+            ROADWATCH <span>●</span> CITIZEN EMPOWERED
+        </div>
+    </div>
+
+    <div class="auth-card">
+        <div class="card-heading">
+            <span class="eyebrow">AUTHENTICATION</span>
+            <h2>Sign in to RoadWatch</h2>
+            <p>Enter your credentials to access your account.</p>
+        </div>
+
+        <form method="POST" action="/login">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" required autofocus>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+
+            <button type="submit" class="primary-btn">
+                Sign In →
+            </button>
+        </form>
+
+        <div class="demo-credentials-box">
+            <div class="demo-title">💡 Quick Access Demo Accounts:</div>
+            <div class="demo-item"><strong>Admin (Management Only):</strong> <code>admin@roadwatch.org</code> / <code>Admin@123</code></div>
+            <div class="demo-item"><strong>Citizen (Reporting & Tracking):</strong> <code>citizen@roadwatch.org</code> / <code>Citizen@123</code></div>
+        </div>
+
+        <p class="login-text">
+            Don't have an account yet?
+            <a href="/register">Create one here</a>
+        </p>
+
+        <div class="secure-note">
+            🔒 Secure session authentication.
+        </div>
+    </div>
+</section>
+{% endblock %}
+

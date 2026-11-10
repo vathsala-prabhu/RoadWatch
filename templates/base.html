@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RoadWatch{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="brand">
+            <span class="brand-icon">R</span>
+            <span>Road<span class="brand-accent">Watch</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="/" class="nav-item">Home</a>
+            <a href="/map" class="nav-item">Interactive Map</a>
+            {% if session.get('user_role') != 'admin' %}
+                <a href="/report" class="nav-item">Report Damage</a>
+            {% endif %}
+
+            {% if session.get('user_id') %}
+                {% if session.get('user_role') == 'admin' %}
+                    <a href="/admin" class="nav-item admin-link">Admin Portal</a>
+                    <a href="/admin/analytics" class="nav-item admin-link">Analytics</a>
+                {% else %}
+                    <a href="/my-reports" class="nav-item">My Reports</a>
+                {% endif %}
+                <span class="user-greeting">
+                    <span class="user-avatar">{{ session.get('user_name', 'U')[0] | upper }}</span>
+                    <span class="user-name">{{ session.get('user_name') }}</span>
+                </span>
+                <a href="/logout" class="nav-logout">Logout</a>
+            {% else %}
+                <a href="/login" class="nav-item">Login</a>
+                <a href="/register" class="nav-cta">Get Started ↗</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                    <div class="flash-alert flash-{{ category }}">
+                        <span class="flash-icon">
+                            {% if category == 'success' %}✓{% elif category == 'error' or category == 'danger' %}✕{% else %}ℹ{% endif %}
+                        </span>
+                        <span class="flash-msg">{{ message }}</span>
+                        <button type="button" class="flash-close" onclick="this.parentElement.remove()">×</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="brand-icon small">R</span>
+                <span>Road<span class="brand-accent">Watch</span></span>
+            </div>
+            <p>© 2026 RoadWatch. Building safer roads, together.</p>
+            <div class="footer-links">
+                <a href="/map">Live Map</a>
+                {% if session.get('user_role') != 'admin' %}
+                    <span>•</span>
+                    <a href="/report">Report Issue</a>
+                {% else %}
+                    <span>•</span>
+                    <a href="/admin">Complaint Management</a>
+                {% endif %}
+                <span>•</span>
+                <a href="/login">Portal</a>
+            </div>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

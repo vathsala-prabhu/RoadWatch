@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}My Submitted Reports | RoadWatch{% endblock %}
+
+{% block content %}
+<section class="citizen-reports-wrapper">
+    <div class="citizen-header-row">
+        <div>
+            <span class="eyebrow">COMMUNITY ENGAGEMENT</span>
+            <h1>My Road Damage Reports</h1>
+            <p>Track the verification and repair progress of the issues you've reported.</p>
+        </div>
+        <a href="/report" class="primary-btn">+ Report New Damage</a>
+    </div>
+
+    <div class="citizen-reports-grid">
+        {% for c in complaints %}
+            <div class="citizen-report-card">
+                <div class="report-card-top">
+                    <span class="report-id-badge">#RW-{{ c.id }}</span>
+                    <span class="status-badge status-{{ c.status | lower | replace(' ', '-') }}">
+                        {{ c.status }}
+                    </span>
+                </div>
+
+                <h3 class="report-card-type">{{ c.damage_type }}</h3>
+                <div class="report-card-location">📍 {{ c.location }}</div>
+
+                {% if c.description %}
+                    <p class="report-card-desc">{{ c.description }}</p>
+                {% endif %}
+
+                {% if c.image_key %}
+                    <div class="report-card-image">
+                        <img src="/uploads/{{ c.image_key }}" alt="Damage photograph" />
+                    </div>
+                {% endif %}
+
+                <div class="report-card-footer">
+                    <span class="report-card-date">Reported: {{ c.created_at[:10] if c.created_at else 'Recent' }}</span>
+                    {% if c.latitude and c.longitude %}
+                        <a href="/map?lat={{ c.latitude }}&lng={{ c.longitude }}&zoom=16" class="view-map-link">
+                            View on Map ↗
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-citizen-state">
+                <div class="empty-icon">🛣️</div>
+                <h3>You haven't reported any road damage yet</h3>
+                <p>Spotted a pothole, surface crack, or broken curb in your neighborhood? Submit a report now to alert municipal repair crews!</p>
+                <a href="/report" class="primary-btn">Report Road Damage Now →</a>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+

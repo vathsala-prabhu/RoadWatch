@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}RoadWatch | Road Damage Reporting & Management System{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-container">
+        <div class="hero-content">
+            <span class="eyebrow">COMMUNITY INFRASTRUCTURE INTELLIGENCE</span>
+            <h1 class="hero-title">
+                Smarter roads.<br>
+                <span>Safer communities.</span>
+            </h1>
+            <p class="hero-subtitle">
+                RoadWatch bridges the gap between citizens and municipal road maintenance.
+                Capture damage with pinpoint GPS accuracy, track repair progress on live interactive maps,
+                and empower city teams with data-driven heatmap analytics.
+            </p>
+            <div class="hero-actions">
+                {% if session.get('user_role') == 'admin' %}
+                    <a href="/admin" class="primary-btn hero-btn">Complaint Management →</a>
+                    <a href="/admin/analytics" class="secondary-btn hero-btn">Analytics & Heatmap 📊</a>
+                {% else %}
+                    <a href="/report" class="primary-btn hero-btn">Report Road Damage →</a>
+                    <a href="/map" class="secondary-btn hero-btn">Explore Live Map 🗺️</a>
+                {% endif %}
+            </div>
+            <div class="hero-badges">
+                <div class="badge-item">
+                    <span class="badge-dot"></span>
+                    <span>Browser GPS Auto-Detect</span>
+                </div>
+                <div class="badge-item">
+                    <span class="badge-dot"></span>
+                    <span>Interactive OpenStreetMap</span>
+                </div>
+                <div class="badge-item">
+                    <span class="badge-dot"></span>
+                    <span>Geographic Heatmaps</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-card-preview">
+            <div class="preview-header">
+                <div class="preview-tag">LIVE PLATFORM METRICS</div>
+                <div class="live-indicator"><span class="pulse"></span> Active</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">{{ stats.total }}</div>
+                    <div class="stat-label">Total Reports</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value warning">{{ stats.pending }}</div>
+                    <div class="stat-label">Pending Verification</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value info">{{ stats.in_progress }}</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value success">{{ stats.resolved }}</div>
+                    <div class="stat-label">Resolved</div>
+                </div>
+            </div>
+            <div class="preview-cta-box">
+                <div class="preview-cta-info">
+                    <h4>Municipal Heatmap & Analytics</h4>
+                    <p>Identify high-density hazard corridors and optimize road repair allocation.</p>
+                </div>
+                {% if session.get('user_role') == 'admin' %}
+                    <a href="/admin/analytics" class="preview-link">Open Analytics →</a>
+                {% else %}
+                    <a href="/map" class="preview-link">View Heatmap →</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features-section">
+    <div class="section-heading text-center">
+        <span class="eyebrow">HOW ROADWATCH WORKS</span>
+        <h2>End-to-end roadway intelligence</h2>
+        <p>From citizen reporting to city maintenance resolution in 3 seamless steps.</p>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">📍</div>
+            <h3>1. Accurate GPS Pinpointing</h3>
+            <p>
+                Use automatic browser geolocation or click directly on the interactive map with a draggable pin. Supports photos taken on-site or uploaded later from home.
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🗺️</div>
+            <h3>2. Interactive Community Map</h3>
+            <p>
+                Explore all verified road issues on OpenStreetMap. Filter by damage category and status with color-coded markers (Pending, In Progress, Resolved).
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>3. Heatmaps & Analytics</h3>
+            <p>
+                Municipal teams visualize complaint clustering using density heatmaps, track monthly trends, and prioritize critical road repairs effectively.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="recent-reports-section">
+    <div class="section-header-flex">
+        <div>
+            <span class="eyebrow">COMMUNITY UPDATES</span>
+            <h2>Recent Roadway Reports</h2>
+        </div>
+        <a href="/map" class="view-all-link">View All On Map →</a>
+    </div>
+
+    <div class="reports-carousel-grid">
+        {% for report in recent_reports %}
+            <div class="report-summary-card">
+                <div class="card-top">
+                    <span class="type-pill">{{ report.damage_type }}</span>
+                    <span class="status-badge status-{{ report.status | lower | replace(' ', '-') }}">
+                        {{ report.status }}
+                    </span>
+                </div>
+                <h4 class="report-location">📍 {{ report.location }}</h4>
+                <p class="report-desc">{{ report.description or 'No additional description provided.' }}</p>
+                <div class="card-footer-meta">
+                    <span class="report-date">{{ report.created_at[:10] }}</span>
+                    {% if report.latitude and report.longitude %}
+                        <a href="/map?lat={{ report.latitude }}&lng={{ report.longitude }}&zoom=16" class="coord-tag">
+                            {{ "%.4f"|format(report.latitude) }}, {{ "%.4f"|format(report.longitude) }}
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-state-box">
+                <p>No reports recorded yet.</p>
+                {% if session.get('user_role') != 'admin' %}
+                    <a href="/report" class="primary-btn">Submit a Report</a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+

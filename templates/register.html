@@ -1,0 +1,76 @@
+
+{% extends "base.html" %}
+
+{% block title %}Create Account | RoadWatch{% endblock %}
+
+{% block content %}
+
+<section class="auth-wrapper">
+
+    <div class="auth-info">
+        <span class="eyebrow">BUILD BETTER COMMUNITIES</span>
+
+        <h1>Your voice can<br>
+            <span>fix our roads.</span>
+        </h1>
+
+        <p>
+            Help create safer streets. Report road damage,
+            track repairs and make your community better
+            one report at a time.
+        </p>
+
+        <div class="info-points">
+            <div>✓ Report road damage easily</div>
+            <div>✓ Track your complaints</div>
+            <div>✓ Make your neighbourhood safer</div>
+        </div>
+
+        <div class="auth-decoration">
+            ROADWATCH <span>●</span> COMMUNITY FIRST
+        </div>
+    </div>
+
+    <div class="auth-card">
+
+        <div class="card-heading">
+            <span class="eyebrow">GET STARTED</span>
+            <h2>Create your account</h2>
+            <p>Join your community in making roads safer.</p>
+        </div>
+
+        <form method="POST" action="/register">
+
+            <label>Full Name</label>
+            <input type="text" name="name"
+                placeholder="Enter your full name" required>
+
+            <label>Email Address</label>
+            <input type="email" name="email"
+                placeholder="you@example.com" required>
+
+            <label>Password</label>
+            <input type="password" name="password"
+                placeholder="Create a password"
+                minlength="8" required>
+
+            <button type="submit" class="primary-btn">
+                Create Account →
+            </button>
+
+        </form>
+
+        <p class="login-text">
+            Already have an account?
+            <a href="/login">Sign in</a>
+        </p>
+
+        <div class="secure-note">
+            🔒 Your information is kept secure.
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
