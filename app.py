@@ -288,8 +288,16 @@ def report():
             INSERT INTO complaints (user_id, damage_type, location, description, image_key, status, priority, latitude, longitude, is_demo)
             VALUES (?, ?, ?, ?, ?, 'Pending', ?, ?, ?, 0)
         """, (user_id, damage_type, location, description, image_key, priority, lat, lng))
+
         conn.commit()
-         # Send SNS email notification for new complaint
+
+        # Get the newly generated complaint ID
+        complaint_id = cursor.lastrowid
+
+        # Close database connection
+        conn.close()
+
+        # Send SNS email notification
         try:
             message = (
                 f"A new road damage complaint has been submitted.\n\n"
@@ -307,7 +315,15 @@ def report():
                 Message=message
             )
 
-            app.logger.info("SNS notification sent for RW-%s", complaint_id)
+            app.logger.info(
+                "SNS notification sent for RW-%s", complaint_id
+            )
+
+        except Exception:
+            app.logger.exception(
+                "SNS notification failed for RW-%s", complaint_id
+            )
+
 
         except Exception:
             app.logger.exception("SNS notification failed for RW-%s", complaint_id)
