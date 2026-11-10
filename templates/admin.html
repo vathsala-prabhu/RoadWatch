@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Admin dashboard | RoadWatch{% endblock %}
+{% block content %}
+<section class="page-shell container">
+  <div class="page-intro"><div class="eyebrow">ROADWATCH ADMINISTRATION</div><h1>Reports overview</h1><p>Review community reports and keep their status up to date.</p></div>
+  <div class="stat-grid">
+    <div class="stat-card"><span class="stat-label">Total reports</span><b>{{ stats.total }}</b><span class="stat-foot">All submissions</span></div>
+    <div class="stat-card"><span class="stat-label">Pending</span><b>{{ stats.pending }}</b><span class="stat-foot">Awaiting review</span></div>
+    <div class="stat-card"><span class="stat-label">In progress</span><b>{{ stats.progress }}</b><span class="stat-foot">Work underway</span></div>
+    <div class="stat-card"><span class="stat-label">Resolved</span><b>{{ stats.resolved }}</b><span class="stat-foot">Completed reports</span></div>
+  </div>
+  <div class="list-heading"><div><h2>All complaints</h2><p class="muted">Review each report and update its status.</p></div></div>
+  {% if complaints %}
+    <div class="admin-list">
+    {% for c in complaints %}
+      <article class="admin-card">
+        <div class="admin-card-info">
+          {% if c.image_url %}<a href="{{ c.image_url }}" target="_blank" rel="noopener"><img class="admin-thumb" src="{{ c.image_url }}" alt="Road damage"></a>{% else %}<div class="admin-thumb thumb-placeholder">⌁</div>{% endif %}
+          <div><span class="complaint-id">REPORT #{{ c.id }} · {{ c.created_at }}</span><h3>{{ c.damage_type }}</h3><p>⌖ {{ c.location }}</p><p>{{ c.description }}</p><small>Reported by {{ c.citizen_name }} · {{ c.citizen_email }}</small></div>
+        </div>
+        <form class="status-form" method="POST" action="{{ url_for('update_status', complaint_id=c.id) }}">
+          <label for="status-{{ c.id }}">Update status</label>
+          <select id="status-{{ c.id }}" name="status"><option {% if c.status=='Pending' %}selected{% endif %}>Pending</option><option {% if c.status=='In Progress' %}selected{% endif %}>In Progress</option><option {% if c.status=='Resolved' %}selected{% endif %}>Resolved</option></select>
+          <button class="button button-small" type="submit">Save status</button>
+        </form>
+      </article>
+    {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state"><div class="empty-icon">✓</div><h3>No complaints submitted</h3><p>New citizen reports will appear here.</p></div>
+  {% endif %}
+</section>
+{% endblock %}

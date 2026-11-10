@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}RoadWatch | Safer roads start with you{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="pulse"></span> COMMUNITY-POWERED ROAD CARE</div>
+      <h1>Better roads<br>begin with <span class="text-gradient">your voice.</span></h1>
+      <p class="hero-lead">Spot a pothole, crack or damaged road? Report it in minutes and follow its progress until the issue is resolved.</p>
+      <div class="hero-actions">
+        {% if current_user %}
+          <a class="button" href="{{ url_for('report') }}">Report road damage <span>↗</span></a>
+          <a class="button button-light" href="{{ url_for('dashboard') }}">Track my reports</a>
+        {% else %}
+          <a class="button" href="{{ url_for('register') }}">Report an issue <span>↗</span></a>
+          <a class="button button-light" href="{{ url_for('login') }}">Log in</a>
+        {% endif %}
+      </div>
+      <div class="trust-line"><span class="trust-icon">✓</span> Simple reporting <span class="trust-icon">✓</span> Transparent updates <span class="trust-icon">✓</span> Safer streets</div>
+    </div>
+    <div class="hero-visual">
+      <div class="visual-orbit orbit-one"></div><div class="visual-orbit orbit-two"></div>
+      <div class="road-card">
+        <div class="road-card-top"><span class="live-dot"></span> COMMUNITY ROAD WATCH <span class="mini-tag">LIVE CONCEPT</span></div>
+        <div class="map-illustration">
+          <div class="map-road road-a"></div><div class="map-road road-b"></div><div class="map-road road-c"></div>
+          <div class="map-block block-a"></div><div class="map-block block-b"></div><div class="map-block block-c"></div>
+          <div class="map-pin pin-a">!</div><div class="map-pin pin-b">!</div><div class="map-pin pin-c">✓</div>
+        </div>
+        <div class="issue-preview">
+          <div><span class="issue-icon">⌁</span><span><b>Road issue reported</b><small>Community report · Just now</small></span></div>
+          <span class="status status-pending">Pending</span>
+        </div>
+        <div class="issue-preview">
+          <div><span class="issue-icon issue-green">✓</span><span><b>Repair completed</b><small>Local road · Recently updated</small></span></div>
+          <span class="status status-resolved">Resolved</span>
+        </div>
+      </div>
+      <div class="floating-note"><span class="note-check">✓</span><span><b>Your report matters</b><small>Every issue deserves attention.</small></span></div>
+    </div>
+  </div>
+</section>
+<section class="section container">
+  <div class="section-heading"><div class="eyebrow">HOW IT WORKS</div><h2>From road issue to action.</h2><p>A simple process that keeps citizens and authorities connected.</p></div>
+  <div class="steps-grid">
+    <article class="step-card"><span class="step-number">01</span><div class="step-icon">＋</div><h3>Report an issue</h3><p>Share the location, damage type, a short description and an optional photo.</p></article>
+    <article class="step-card"><span class="step-number">02</span><div class="step-icon">⌖</div><h3>Track progress</h3><p>Check your dashboard to see whether your complaint is pending or being handled.</p></article>
+    <article class="step-card"><span class="step-number">03</span><div class="step-icon">✓</div><h3>See the outcome</h3><p>Authorities update the report when work progresses and when it is resolved.</p></article>
+  </div>
+</section>
+<section class="cta-band"><div class="container cta-inner"><div><div class="eyebrow eyebrow-light">MAKE YOUR STREETS SAFER</div><h2>See something? Say something.</h2><p>Your local knowledge can help make a real difference.</p></div><a class="button button-white" href="{{ url_for('register') }}">Join RoadWatch <span>↗</span></a></div></section>
+{% endblock %}
